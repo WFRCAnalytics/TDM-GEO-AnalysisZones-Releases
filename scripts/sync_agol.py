@@ -46,7 +46,7 @@ def main() -> None:
     gis = agol.connect()
 
     item_id = os.environ[env_var]
-    print(f"Overwriting '{cfg['title']}' → {args.version} (item: {item_id}) ...")
+    print(f"Overwriting '{cfg['title']}' -> {args.version} (item: {item_id}) ...")
     result = agol.overwrite_feature_service(gis, item_id, gdf, version=args.version)
 
     added = len(result.get("addResults", []))

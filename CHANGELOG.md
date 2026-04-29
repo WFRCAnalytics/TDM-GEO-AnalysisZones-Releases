@@ -5,6 +5,10 @@ Releases are tagged in Git as `vYYYY.N` (e.g., `v2024.1`).
 
 ## [Unreleased]
 
+## [v8.3.2] - 2021-11-10
+### Changed
+- Updated TAZ attribute data (TAZ.dbf).
+
 ## [v8.3.0] - 2019-09-18
 ### Added
 - Initial versioned release of Wasatch Front TAZ shapefile.
