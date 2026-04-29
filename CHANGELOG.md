@@ -5,6 +5,10 @@ Releases are tagged in Git as `vYYYY.N` (e.g., `v2024.1`).
 
 ## [Unreleased]
 
+## [v9.0.0] - 2023-07-21
+### Changed
+- Updated TAZ geometry and attribute data (3,546 features).
+
 ## [v8.3.2] - 2021-11-10
 ### Changed
 - Updated TAZ attribute data (TAZ.dbf).
