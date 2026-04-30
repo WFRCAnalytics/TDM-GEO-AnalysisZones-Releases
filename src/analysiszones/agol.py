@@ -11,7 +11,7 @@ RELEASES_URL = "https://github.com/WFRCAnalytics/TDM-GEO-AnalysisZones-Releases/
 # path changes. Add MAZ (and any future layers) here when ready.
 LAYERS: dict[str, dict] = {
     "taz": {
-        "data_path": Path("data/taz/TAZ.shp"),
+        "data_path": Path("data/taz/WFv901_TAZ_20240412.shp"),
         "title": "Wasatch Front TAZ",
         "description_template": (
             "Traffic Analysis Zones (TAZ) for the Wasatch Front Travel Demand Model.\n\n"

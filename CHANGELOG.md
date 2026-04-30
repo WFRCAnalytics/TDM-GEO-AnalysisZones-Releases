@@ -5,6 +5,11 @@ Releases are tagged in Git as `vYYYY.N` (e.g., `v2024.1`).
 
 ## [Unreleased]
 
+## [v9.0.1] - 2024-04-12
+### Changed
+- Renamed shapefile to WFv901_TAZ_20240412.shp (versioned naming convention).
+- Updated TAZ attribute data.
+
 ## [v9.0.0] - 2023-07-21
 ### Changed
 - Updated TAZ geometry and attribute data (3,546 features).
