@@ -2,8 +2,8 @@ import os
 from pathlib import Path
 
 import geopandas as gpd
+from arcgis.features import FeatureLayerCollection, GeoAccessor
 from arcgis.gis import GIS
-from arcgis.features import GeoAccessor, FeatureLayerCollection
 
 RELEASES_URL = "https://github.com/WFRCAnalytics/TDM-GEO-AnalysisZones-Releases/releases"
 
@@ -11,7 +11,7 @@ RELEASES_URL = "https://github.com/WFRCAnalytics/TDM-GEO-AnalysisZones-Releases/
 # path changes. Add MAZ (and any future layers) here when ready.
 LAYERS: dict[str, dict] = {
     "taz": {
-        "data_path": Path("data/taz/WFv901_TAZ_20240412.shp"),
+        "data_path": Path("data/taz/WFv910_TAZ.shp"),
         "title": "Wasatch Front TAZ",
         "description_template": (
             "Traffic Analysis Zones (TAZ) for the Wasatch Front Travel Demand Model.\n\n"
@@ -39,9 +39,7 @@ LAYERS: dict[str, dict] = {
 
 def connect() -> GIS:
     gis = GIS(
-        os.environ["AGOL_PORTAL_URL"],
-        os.environ["AGOL_USERNAME"],
-        os.environ["AGOL_PASSWORD"],
+        os.environ["AGOL_PORTAL_URL"], os.environ["AGOL_USERNAME"], os.environ["AGOL_PASSWORD"]
     )
     print(f"Connected as: {gis.properties.user.username}")
     return gis
@@ -51,31 +49,39 @@ def _to_sedf(gdf: gpd.GeoDataFrame):
     return GeoAccessor.from_geodataframe(gdf)
 
 
-def publish(gis: GIS, layer: str, gdf: gpd.GeoDataFrame, *, version: str, public: bool = False) -> str:
+def publish(
+    gis: GIS, layer: str, gdf: gpd.GeoDataFrame, *, version: str, public: bool = False
+) -> str:
     """Publish a GeoDataFrame as a new hosted feature layer. Returns item ID."""
     cfg = LAYERS[layer]
     description = cfg["description_template"].format(version=version)
     sdf = _to_sedf(gdf)
     feature_layer = sdf.spatial.to_featurelayer(
-        title=cfg["title"],
-        gis=gis,
-        tags=cfg["tags"],
-        description=description,
+        title=cfg["title"], gis=gis, tags=cfg["tags"], description=description
     )
     if public:
         feature_layer.update(item_properties={"access": "public"})
     return feature_layer.id
 
 
-def overwrite_feature_service(gis: GIS, item_id: str, gdf: gpd.GeoDataFrame, *, version: str) -> dict:
+def overwrite_feature_service(
+    gis: GIS, item_id: str, gdf: gpd.GeoDataFrame, *, version: str
+) -> dict:
     """Replace all features in an existing hosted feature layer with gdf contents."""
     item = gis.content.get(item_id)
     if item is None:
         raise ValueError(f"Item {item_id!r} not found on {gis.url}")
 
-    cfg = next(c for c in LAYERS.values() if c["item_id_env"] and os.environ.get(c["item_id_env"]) == item_id)
+    cfg = next(
+        c
+        for c in LAYERS.values()
+        if c["item_id_env"] and os.environ.get(c["item_id_env"]) == item_id
+    )
     description = cfg["description_template"].format(version=version)
-    item.update(item_properties={"description": description})
+    try:
+        item.update(item_properties={"description": description})
+    except Exception as e:
+        print(f"Warning: could not update item description ({e}). Continuing with data sync ...")
 
     layer = FeatureLayerCollection.fromitem(item).layers[0]
     layer.delete_features(where="1=1")
