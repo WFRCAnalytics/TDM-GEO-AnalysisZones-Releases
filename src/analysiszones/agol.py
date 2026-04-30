@@ -5,13 +5,13 @@ import geopandas as gpd
 from arcgis.features import FeatureLayerCollection, GeoAccessor
 from arcgis.gis import GIS
 
-RELEASES_URL = "https://github.com/WFRCAnalytics/TDM-GEO-AnalysisZones-Releases/releases"
+RELEASES_URL = "https://github.com/WFRCAnalytics/TDM-GEO-AnalysisZones/releases"
 
 # Layer registry — the only place that needs to change when a layer's format or
 # path changes. Add MAZ (and any future layers) here when ready.
 LAYERS: dict[str, dict] = {
     "taz": {
-        "data_path": Path("data/taz/WFv910_TAZ.shp"),
+        "data_path": Path("data/taz/WFv1000_TAZ.shp"),
         "title": "Wasatch Front TAZ",
         "description_template": (
             "Traffic Analysis Zones (TAZ) for the Wasatch Front Travel Demand Model.\n\n"
