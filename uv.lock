@@ -1828,7 +1828,7 @@ wheels = [
 ]
 
 [[package]]
-name = "tdm-geo-analysiszones-releases"
+name = "tdm-geo-analysiszones"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

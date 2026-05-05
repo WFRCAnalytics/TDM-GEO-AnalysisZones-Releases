@@ -181,6 +181,56 @@ git tag v8.4.0
 git push && git push --tags
 ```
 
+### When the shapefile filename changes (two-commit workflow)
+
+If the shapefile is renamed (e.g. `WFv900_TAZ.shp` → `WFv1000_TAZ.shp`), Git must track the rename and the code must be updated **before** the new data lands. Do this as two separate commits.
+
+**Commit 1 — rename only (no data change):**
+
+```bash
+# 1a. Rename every sidecar file (.shp .shx .dbf .prj .cpg) in the data folder.
+#     Use git mv for each so Git tracks the rename rather than a delete+add.
+git mv data/taz/WFv900_TAZ.shp  data/taz/WFv1000_TAZ.shp
+git mv data/taz/WFv900_TAZ.shx  data/taz/WFv1000_TAZ.shx
+git mv data/taz/WFv900_TAZ.dbf  data/taz/WFv1000_TAZ.dbf
+git mv data/taz/WFv900_TAZ.prj  data/taz/WFv1000_TAZ.prj
+git mv data/taz/WFv900_TAZ.cpg  data/taz/WFv1000_TAZ.cpg
+
+# 1b. Update the data_path for that layer in src/analysiszones/agol.py.
+#     The "data_path" key is the only place the filename is registered:
+#
+#       "taz": {
+#           "data_path": Path("data/taz/WFv1000_TAZ.shp"),   ← change this
+#           ...
+#       }
+
+# 1c. Commit the rename + code change together.
+git add data/taz/ src/analysiszones/agol.py
+git commit -m "rename taz file for vX.Y.Z (pre) release"
+git push
+```
+
+**Commit 2 — replace data and publish:**
+
+```bash
+# 2a. Copy the new shapefile (all sidecar files) from the model folder
+#     into data/taz/, overwriting the placeholders from commit 1.
+
+# 2b. Validate the new data.
+uv run python scripts/validate.py --layer taz
+
+# 2c. Sync to ArcGIS Online.
+uv run python scripts/sync_agol.py --layer taz --version vX.Y.Z
+
+# 2d. Commit, tag, and push.
+git add data/taz/ CHANGELOG.md
+git commit -m "Release vX.Y.Z — Wasatch Front TAZ"
+git tag vX.Y.Z
+git push && git push --tags
+```
+
+> **Why two commits?** Git detects renames by comparing file content. If the rename and the data replacement happen in the same commit, Git sees a delete + add of unrelated content and loses history. Separating the rename (commit 1) from the data update (commit 2) keeps `git log -- data/taz/WFv1000_TAZ.shp` traceable back through the old filename.
+
 ---
 
 ## Data
